@@ -28,7 +28,7 @@ def test_library_code_never_prints():
     root = Path(__file__).resolve().parent.parent / "openhack"
     hits = subprocess.run(
         ["grep", "-rn", r"^\s*print(", str(root / "agents"), str(root / "tools")],
-        capture_output=True, text=True,
+        capture_output=True, text=True, errors="replace",
     ).stdout.strip()
     # interactive_runner is the deliberate non-TUI console path.
     offenders = [l for l in hits.splitlines() if "interactive_runner" not in l]

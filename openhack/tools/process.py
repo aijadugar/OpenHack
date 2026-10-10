@@ -62,6 +62,7 @@ def run_killable(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=text,
+        errors="replace",
         # New session => the child is its own process-group leader, so killing
         # the group takes down anything it spawned (a shell pipeline, a wrapped
         # scanner) rather than orphaning grandchildren.

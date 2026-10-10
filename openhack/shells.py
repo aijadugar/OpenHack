@@ -94,6 +94,7 @@ class ShellManager:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
+            errors="replace",
             bufsize=1,
             cwd=cwd or os.getcwd(),
             env=env,
