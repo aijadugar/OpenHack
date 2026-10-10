@@ -69,3 +69,24 @@ def test_ids_are_sequential_and_listed():
     ids = [mgr.spawn("true") for _ in range(3)]
     assert ids == ["sh1", "sh2", "sh3"]
     assert {s.id for s in mgr.list()} == {"sh1", "sh2", "sh3"}
+
+
+def test_non_utf8_output_does_not_deadlock():
+    """Regression: a command emitting invalid UTF-8 bytes must not hang.
+
+    Without errors="replace" on the Popen, the reader thread's decode raises,
+    it exits the loop and blocks in wait() while the child keeps filling the
+    64KB OS pipe buffer — a permanent deadlock. This test proves the shell
+    exits instead of hanging.
+    """
+    mgr = ShellManager()
+    try:
+        sid = mgr.spawn(
+            "python3 -c \"import sys; sys.stdout.buffer.write(b'\\xff' * 200000)\""
+        )
+        sh = mgr.get(sid)
+        assert sh is not None
+        assert _wait(lambda: sh.status == "exited"), "shell deadlocked on non-UTF-8 output"
+        assert sh.returncode is not None
+    finally:
+        mgr.shutdown()
